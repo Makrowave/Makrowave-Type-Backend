@@ -1,0 +1,7 @@
+﻿/Makrowave-Type-Backend/appsettings.Development.json
+.idea/
+Makrowave-Type-Backend/bin/
+Makrowave-Type-Backend/obj/
+Makrowave-Type-Backend/out/
+.rider/
+Makrowave-Type-Backend.sln.DotSettings.user
