@@ -1,8 +1,7 @@
-﻿namespace Makrowave_Type_Backend.Models.Entities;
+﻿namespace Makrowave_Type_Backend.Dtos;
 
-public class UserTheme
+public class UserThemeDto
 {
-    public Guid UserThemeId { get; set; }
     public required string UiText { get; set; }
     public required string UiBackground { get; set; }
 
@@ -13,7 +12,5 @@ public class UserTheme
     public required string InactiveKey { get; set; }
     public required string InactiveText { get; set; }
     public required string ActiveText { get; set; }
-    
-    public User? User { get; set; }
-    public ICollection<GradientColor> GradientColors { get; set; } = [];
+    public required List<string> Gradient {get; set;}
 }

@@ -22,6 +22,7 @@ public class DatabaseContext : DbContext
             entity.ToTable("user");
             entity.Property(e => e.UserId).IsRequired().HasColumnName("user_id").HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Username).IsRequired().HasColumnName("username").HasMaxLength(32);
+            entity.Property(e => e.PasswordHash).IsRequired().HasColumnName("password_hash").HasMaxLength(120);
             
             entity.HasOne(e => e.Theme).WithOne(e => e.User).HasForeignKey<UserTheme>(e => e.UserThemeId);
         });
