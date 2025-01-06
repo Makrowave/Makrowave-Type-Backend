@@ -1,6 +1,6 @@
-#@Makrowave_Type_Backend_HostAddress = http://localhost:5296
-#
-#GET {{Makrowave_Type_Backend_HostAddress}}/weatherforecast/
-#Accept: application/json
-#
-####
+@Makrowave_Type_Backend_HostAddress = http://localhost:5296
+
+POST {{Makrowave_Type_Backend_HostAddress}}/register/
+Accept: application/json
+
+###

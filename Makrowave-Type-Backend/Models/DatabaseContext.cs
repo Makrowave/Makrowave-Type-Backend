@@ -10,9 +10,21 @@ public class DatabaseContext : DbContext
     public DbSet<GradientColor> GradientColors { get; set; }
     public DbSet<DailyRecord> DailyRecords { get; set; }
     public DbSet<Session> Sessions { get; set; }
+    
+    private readonly IConfiguration _configuration;
 
-    public DatabaseContext() {}
-    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
+    public DatabaseContext(DbContextOptions<DatabaseContext> options, IConfiguration configuration) : base(options)
+    {
+        _configuration = configuration;
+    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+               optionsBuilder.UseNpgsql(connectionString: _configuration.GetConnectionString("DefaultConnection"));
+        }
+        base.OnConfiguring(optionsBuilder);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,8 +83,9 @@ public class DatabaseContext : DbContext
         
         modelBuilder.Entity<Session>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("pk_session_id");
+            entity.HasKey(e => e.SessionId).HasName("pk_session_id");
             entity.ToTable("session");
+            entity.Property(e => e.SessionId).IsRequired().HasColumnName("session_id").HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.UserId).IsRequired().HasColumnName("user_id");
             
             entity.HasOne(e => e.User).WithMany(e => e.Sessions).HasForeignKey(e => e.UserId);

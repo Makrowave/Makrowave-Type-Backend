@@ -2,6 +2,7 @@
 
 namespace Makrowave_Type_Backend.Controllers;
 
+[Route("api/[controller]")]
 [ApiController]
 public class DailyChallengeController
 {

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Makrowave_Type_Backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250103155909_InitialCreate")]
+    [Migration("20250105140151_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -88,15 +88,23 @@ namespace Makrowave_Type_Backend.Migrations
 
             modelBuilder.Entity("Makrowave_Type_Backend.Models.Entities.Session", b =>
                 {
+                    b.Property<Guid>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("UserId")
+                    b.HasKey("SessionId")
                         .HasName("pk_session_id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("session", (string)null);
                 });
@@ -111,7 +119,9 @@ namespace Makrowave_Type_Backend.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("password_hash");
 
                     b.Property<string>("Username")
                         .IsRequired()

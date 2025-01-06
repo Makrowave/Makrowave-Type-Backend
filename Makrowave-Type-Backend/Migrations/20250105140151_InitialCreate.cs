@@ -18,7 +18,7 @@ namespace Makrowave_Type_Backend.Migrations
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     username = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: false)
+                    password_hash = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,12 +52,13 @@ namespace Makrowave_Type_Backend.Migrations
                 name: "session",
                 columns: table => new
                 {
+                    session_id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SessionId = table.Column<Guid>(type: "uuid", nullable: false)
+                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_session_id", x => x.user_id);
+                    table.PrimaryKey("pk_session_id", x => x.session_id);
                     table.ForeignKey(
                         name: "FK_session_user_user_id",
                         column: x => x.user_id,
@@ -119,6 +120,11 @@ namespace Makrowave_Type_Backend.Migrations
                 name: "IX_gradient_color_user_theme_id",
                 table: "gradient_color",
                 column: "user_theme_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_session_user_id",
+                table: "session",
+                column: "user_id");
         }
 
         /// <inheritdoc />

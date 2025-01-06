@@ -18,16 +18,16 @@ public class DefaultTheme
     private readonly List<string> _gradient;
     public DefaultTheme(IConfiguration config)
     {
-        _uiText = GetConfigValue(config, "UIText");
-        _uiBackground = GetConfigValue(config, "UIBackground");
+        _uiText = GetConfigValue(config, "UiText");
+        _uiBackground = GetConfigValue(config, "UiBackground");
         _textIncomplete = GetConfigValue(config, "TextIncomplete");
         _textComplete = GetConfigValue(config, "TextComplete");
         _textIncorrect = GetConfigValue(config, "TextIncorrect");
         _inactiveKey = GetConfigValue(config, "InactiveKey");
         _inactiveText = GetConfigValue(config, "InactiveText");
         _activeText = GetConfigValue(config, "ActiveText");
-        var gradient = config.GetSection("Theme.Gradient").Get<List<string>>() ?? throw new InvalidOperationException();
-        if(gradient == null || gradient.Count > 2) throw new InvalidOperationException();
+        var gradient = config.GetSection("Theme:Gradient").Get<List<string>>() ?? throw new InvalidOperationException("Missing or invalid \"Theme:Gradient\"");
+        if(gradient.Count < 2) throw new InvalidOperationException();
         _gradient = gradient;
     }
 
@@ -35,6 +35,7 @@ public class DefaultTheme
     {
         return new UserTheme()
         {
+            UserThemeId = userId,
             UiText = _uiText,
             UiBackground = _uiBackground,
             TextIncomplete = _textIncomplete,
@@ -50,6 +51,7 @@ public class DefaultTheme
 
     private static string GetConfigValue(IConfiguration configuration, string key)
     {
-        return configuration["Theme.UiText"] ?? throw new InvalidOperationException();
+        var fullKey = "Theme:" + key;
+        return configuration[fullKey] ?? throw new InvalidOperationException("Missing \"" + fullKey + "\" in appconfig.json");
     }
 }

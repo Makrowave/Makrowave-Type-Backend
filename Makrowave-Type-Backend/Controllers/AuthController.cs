@@ -1,29 +1,34 @@
-﻿using Isopoh.Cryptography.Argon2;
+﻿using System.Security.Claims;
+using Isopoh.Cryptography.Argon2;
+using Makrowave_Type_Backend.Dtos;
 using Makrowave_Type_Backend.Models;
 using Makrowave_Type_Backend.Models.Entities;
 using Makrowave_Type_Backend.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Makrowave_Type_Backend.Controllers;
 
-
+[Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
     private readonly DatabaseContext _dbContext;
     private readonly DefaultTheme _defaultTheme;
-    private readonly int _sessionLength;
+    private readonly int _sessionDuration;
 
     public AuthController(DatabaseContext dbContext, DefaultTheme defaultTheme, IConfiguration config)
     {
         _dbContext = dbContext;
         _defaultTheme = defaultTheme;
-        _sessionLength = Int32.Parse(config["SessionLength"] ?? throw new InvalidOperationException("Missing or invalid 'SessionLength'"));
+        _sessionDuration = Int32.Parse(config["SessionDuration"] ?? throw new InvalidOperationException("Missing or invalid \"SessionDuration\" in appsettings.json"));
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(string username, string password)
+    public async Task<IActionResult> Login([FromBody]AuthDto authDto)
     {
+        var username = authDto.Username;
+        var password = authDto.Password;
         if(!UserExists(username)) return Unauthorized();
         var user = _dbContext.Users.FirstOrDefault(u => u.Username == username);
         if (!Argon2.Verify(user!.PasswordHash, password))
@@ -31,7 +36,7 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var expirationDate = DateTime.UtcNow.AddMinutes(_sessionLength);
+        var expirationDate = DateTime.UtcNow.AddMinutes(_sessionDuration);
         var session = new Session() { UserId = user.UserId, ExpirationDate = expirationDate };
         _dbContext.Sessions.Add(session);
         await _dbContext.SaveChangesAsync();
@@ -42,13 +47,15 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.None,
             Expires = expirationDate
         });
-        return Ok(session.SessionId.ToString());
+        return Ok(user.Username);
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> Register(string username, string password)
+    public async Task<IActionResult> Register([FromBody]AuthDto user)
     {
-        if (!RegexValidator.isValidUsername(username) || !RegexValidator.isValidPassword(password))
+        var username = user.Username;
+        var password = user.Password;
+        if (!RegexValidator.IsValidUsername(username) || !RegexValidator.IsValidPassword(password))
         {
             return BadRequest("Invalid username or password");
         }
@@ -58,34 +65,60 @@ public class AuthController : ControllerBase
             return BadRequest("User already exists");
         }
         var newUser = new User { Username = username, PasswordHash = Argon2.Hash(password)};
+        _dbContext.Users.Add(newUser);
         await _dbContext.SaveChangesAsync();
         var userTheme = _defaultTheme.GenerateDefaultUserTheme(newUser.UserId);
         _dbContext.UserThemes.Add(userTheme);
         await _dbContext.SaveChangesAsync();
-        return Ok(newUser);
+        return Ok();
     }
     
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout(string sessionId)
+    public async Task<IActionResult> Logout()
     {
-        try
+        var sessionId = Request.Cookies["session"];
+        if(!Guid.TryParse(sessionId, out var sessionGuid)) 
         {
-            var sessionGuid = Guid.Parse(sessionId);
-        }
-        catch
-        {
-            return BadRequest("Invalid sessionId format");
+            return BadRequest("Invalid session format");
         }
 
-        var session = _dbContext.Sessions.Find(sessionId);
+        var session = _dbContext.Sessions.Find(sessionGuid);
         if (session == null)
         {
-            return BadRequest("Invalid sessionId");
+            return BadRequest("Invalid session");
         }
         _dbContext.Sessions.Remove(session);
         await _dbContext.SaveChangesAsync();
         Response.Cookies.Delete("session");
         return Ok();
+    }
+
+    [HttpGet("check-session")]
+    public async Task<ActionResult<bool>> CheckSession()
+    {
+        if (!Request.Cookies.TryGetValue("session", out var sessionId) ||
+            !Guid.TryParse(sessionId, out var sessionGuid)) return Ok(false);
+        var session = await _dbContext.Sessions.FindAsync(sessionGuid);
+        if (session == null) return Ok(false);
+        if (session.ExpirationDate > DateTime.UtcNow)
+        {
+            return Ok(true);
+        }
+        _dbContext.Sessions.Remove(session);
+        Response.Cookies.Delete("session");
+        await _dbContext.SaveChangesAsync();
+        return Ok(false);
+    }
+    
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
+    [HttpGet("get-profile")]
+    public async Task<ActionResult<string>> GetProfile()
+    {
+        var sessionId = Guid.Parse(Request.Cookies["session"]!);
+        var userId =  (await _dbContext.Sessions.FindAsync(sessionId))!.UserId;
+        var user = await _dbContext.Users.FindAsync(userId);
+        return Ok(user?.Username);
     }
 
     bool UserExists(string username)
