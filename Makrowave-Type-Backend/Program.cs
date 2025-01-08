@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Makrowave_Type_Backend.Auth;
 using Makrowave_Type_Backend.Models;
+using Makrowave_Type_Backend.Services;
 using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 
 //Services
 builder.Services.AddSingleton<DefaultTheme>();
+builder.Services.AddSingleton<ITextGeneratorService, TextGeneratorService>();
 
 //Authentication
 builder.Services.AddAuthentication("SessionCookie")
