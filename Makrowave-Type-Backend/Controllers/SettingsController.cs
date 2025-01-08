@@ -19,7 +19,7 @@ public class SettingsController : ControllerBase
         _dbContext = dbContext;
 
     }
-    
+
     [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
     [HttpGet("theme")]
     public async Task<ActionResult<string>> GetUserTheme()
@@ -51,7 +51,7 @@ public class SettingsController : ControllerBase
     public async Task<ActionResult<string>> SaveUserTheme(UserThemeDto userTheme)
     {
         var userId = await GetUserId(Request.Cookies["session"]);
-        
+
         if (!UserExists(userId) || !_dbContext.UserThemes.Any(theme => theme.UserThemeId == userId))
         {
             return NotFound("User does not exist");
@@ -69,12 +69,12 @@ public class SettingsController : ControllerBase
         theme.InactiveText = userTheme.InactiveText;
         theme.ActiveText = userTheme.ActiveText;
         _dbContext.UserThemes.Update(theme);
-        userTheme.Gradient.Select((color, index) => new GradientColor() { Id = index, Color = color, UserThemeId = userId}).ToList()
+        userTheme.Gradient.Select((color, index) => new GradientColor() { Id = index, Color = color, UserThemeId = userId }).ToList()
             .ForEach(gradientColor => _dbContext.GradientColors.Add(gradientColor));
         await _dbContext.SaveChangesAsync();
         return Ok();
     }
-    
+
     private bool UserExists(Guid userId)
     {
         return _dbContext.Users.Any(u => u.UserId == userId);

@@ -12,5 +12,5 @@ public class UserThemeDto
     public required string InactiveKey { get; set; }
     public required string InactiveText { get; set; }
     public required string ActiveText { get; set; }
-    public required List<string> Gradient {get; set;}
+    public required List<string> Gradient { get; set; }
 }

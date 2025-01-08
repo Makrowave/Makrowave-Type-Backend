@@ -8,6 +8,6 @@ public class DailyRecord
     public int Time { get; set; }
     public int Score { get; set; }
     public float Accuracy { get; set; }
-    
+
     public User? User { get; set; }
 }

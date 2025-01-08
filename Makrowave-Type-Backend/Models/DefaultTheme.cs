@@ -27,7 +27,7 @@ public class DefaultTheme
         _inactiveText = GetConfigValue(config, "InactiveText");
         _activeText = GetConfigValue(config, "ActiveText");
         var gradient = config.GetSection("Theme:Gradient").Get<List<string>>() ?? throw new InvalidOperationException("Missing or invalid \"Theme:Gradient\"");
-        if(gradient.Count < 2) throw new InvalidOperationException();
+        if (gradient.Count < 2) throw new InvalidOperationException();
         _gradient = gradient;
     }
 

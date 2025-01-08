@@ -2,9 +2,9 @@
 
 public class GradientColor
 {
-    public int Id {get; set;}
-    public required Guid UserThemeId {get; set;}
-    public required string Color {get; set;}
-    
-    public UserTheme? Theme {get; set;}
+    public int Id { get; set; }
+    public required Guid UserThemeId { get; set; }
+    public required string Color { get; set; }
+
+    public UserTheme? Theme { get; set; }
 }

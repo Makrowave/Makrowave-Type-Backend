@@ -13,7 +13,7 @@ public class UserTheme
     public required string InactiveKey { get; set; }
     public required string InactiveText { get; set; }
     public required string ActiveText { get; set; }
-    
+
     public User? User { get; set; }
     public ICollection<GradientColor> GradientColors { get; set; } = [];
 }

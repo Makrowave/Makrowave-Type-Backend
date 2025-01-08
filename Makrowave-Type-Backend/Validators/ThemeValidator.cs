@@ -17,7 +17,7 @@ public class ThemeValidator
                && IsValidHex(theme.ActiveText)
                && !theme.Gradient.Exists(color => !IsValidHex(color));
     }
-    
+
     public static bool IsValidHex(string hex)
     {
         return Regex.IsMatch(hex, "^#[0-9A-F]{6}$");

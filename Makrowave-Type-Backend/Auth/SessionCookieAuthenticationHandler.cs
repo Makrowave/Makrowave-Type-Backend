@@ -9,9 +9,9 @@ namespace Makrowave_Type_Backend.Auth;
 public class SessionCookieAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly DatabaseContext _context;
-    public SessionCookieAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, 
-        ILoggerFactory logger, 
-        UrlEncoder encoder, 
+    public SessionCookieAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
         ISystemClock clock,
         DatabaseContext context) : base(options, logger, encoder, clock)
     {
@@ -55,7 +55,7 @@ public class SessionCookieAuthenticationHandler : AuthenticationHandler<Authenti
             Console.WriteLine("No user found.");
             return AuthenticateResult.NoResult();
         }
-        
+
         var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, session.UserId.ToString())], "SessionCookie");
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), Scheme.Name);
         return AuthenticateResult.Success(ticket);

@@ -10,7 +10,7 @@ public class DatabaseContext : DbContext
     public DbSet<GradientColor> GradientColors { get; set; }
     public DbSet<DailyRecord> DailyRecords { get; set; }
     public DbSet<Session> Sessions { get; set; }
-    
+
     private readonly IConfiguration _configuration;
 
     public DatabaseContext(DbContextOptions<DatabaseContext> options, IConfiguration configuration) : base(options)
@@ -21,7 +21,7 @@ public class DatabaseContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-               optionsBuilder.UseNpgsql(connectionString: _configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseNpgsql(connectionString: _configuration.GetConnectionString("DefaultConnection"));
         }
         base.OnConfiguring(optionsBuilder);
     }
@@ -35,7 +35,7 @@ public class DatabaseContext : DbContext
             entity.Property(e => e.UserId).IsRequired().HasColumnName("user_id").HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Username).IsRequired().HasColumnName("username").HasMaxLength(32);
             entity.Property(e => e.PasswordHash).IsRequired().HasColumnName("password_hash").HasMaxLength(120);
-            
+
             entity.HasOne(e => e.Theme).WithOne(e => e.User).HasForeignKey<UserTheme>(e => e.UserThemeId);
         });
 
@@ -57,7 +57,7 @@ public class DatabaseContext : DbContext
 
         modelBuilder.Entity<GradientColor>(entity =>
         {
-            entity.HasKey(e =>  new {e.Id, e.UserThemeId}).HasName("pk_gradient_color_id");
+            entity.HasKey(e => new { e.Id, e.UserThemeId }).HasName("pk_gradient_color_id");
             entity.ToTable("gradient_color");
             entity.Property(e => e.Id).IsRequired().HasColumnName("gradient_color_id");
             entity.Property(e => e.UserThemeId).IsRequired().HasColumnName("user_theme_id");
@@ -66,7 +66,7 @@ public class DatabaseContext : DbContext
             entity.HasOne(e => e.Theme).WithMany(e => e.GradientColors).HasForeignKey(e => e.UserThemeId);
 
         });
-        
+
         modelBuilder.Entity<DailyRecord>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("pk_daily_record_id");
@@ -77,17 +77,17 @@ public class DatabaseContext : DbContext
             entity.Property(e => e.Time).HasColumnName("time");
             entity.Property(e => e.Accuracy).HasColumnName("accuracy");
             entity.Property(e => e.Score).HasColumnName("score");
-            
+
             entity.HasOne(e => e.User).WithMany(e => e.DailyRecords).HasForeignKey(e => e.UserId);
         });
-        
+
         modelBuilder.Entity<Session>(entity =>
         {
             entity.HasKey(e => e.SessionId).HasName("pk_session_id");
             entity.ToTable("session");
             entity.Property(e => e.SessionId).IsRequired().HasColumnName("session_id").HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.UserId).IsRequired().HasColumnName("user_id");
-            
+
             entity.HasOne(e => e.User).WithMany(e => e.Sessions).HasForeignKey(e => e.UserId);
         });
     }

@@ -25,11 +25,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody]AuthDto authDto)
+    public async Task<IActionResult> Login([FromBody] AuthDto authDto)
     {
         var username = authDto.Username;
         var password = authDto.Password;
-        if(!UserExists(username)) return Unauthorized();
+        if (!UserExists(username)) return Unauthorized();
         var user = _dbContext.Users.FirstOrDefault(u => u.Username == username);
         if (!Argon2.Verify(user!.PasswordHash, password))
         {
@@ -49,9 +49,9 @@ public class AuthController : ControllerBase
         });
         return Ok(user.Username);
     }
-    
+
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody]AuthDto user)
+    public async Task<IActionResult> Register([FromBody] AuthDto user)
     {
         var username = user.Username;
         var password = user.Password;
@@ -64,7 +64,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest("User already exists");
         }
-        var newUser = new User { Username = username, PasswordHash = Argon2.Hash(password)};
+        var newUser = new User { Username = username, PasswordHash = Argon2.Hash(password) };
         _dbContext.Users.Add(newUser);
         await _dbContext.SaveChangesAsync();
         var userTheme = _defaultTheme.GenerateDefaultUserTheme(newUser.UserId);
@@ -72,13 +72,13 @@ public class AuthController : ControllerBase
         await _dbContext.SaveChangesAsync();
         return Ok();
     }
-    
+
     [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
         var sessionId = Request.Cookies["session"];
-        if(!Guid.TryParse(sessionId, out var sessionGuid)) 
+        if (!Guid.TryParse(sessionId, out var sessionGuid))
         {
             return BadRequest("Invalid session format");
         }
@@ -110,13 +110,13 @@ public class AuthController : ControllerBase
         await _dbContext.SaveChangesAsync();
         return Ok(false);
     }
-    
+
     [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
     [HttpGet("get-profile")]
     public async Task<ActionResult<string>> GetProfile()
     {
         var sessionId = Guid.Parse(Request.Cookies["session"]!);
-        var userId =  (await _dbContext.Sessions.FindAsync(sessionId))!.UserId;
+        var userId = (await _dbContext.Sessions.FindAsync(sessionId))!.UserId;
         var user = await _dbContext.Users.FindAsync(userId);
         return Ok(user?.Username);
     }
