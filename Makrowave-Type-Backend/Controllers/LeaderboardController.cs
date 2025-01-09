@@ -36,12 +36,15 @@ public class LeaderboardController : ControllerBase
     [HttpGet("get-alltime")]
     public async Task<ActionResult> GetAllTimeLeaderboard()
     {
-        var scores = await _context.DailyRecords.GroupBy(record => record.Date.Date)
+        var records = await _context.DailyRecords.ToListAsync();
+        var scores = records.GroupBy(record => record.Date.Date)
             .Select(group => group.OrderByDescending(record => record.Score).First())
-            .Join(_context.Users, record => record.UserId, user => user.UserId, (record, user) => new { user.Username, record.Date.Date } )
+            .Join(_context.Users, record => record.UserId, user => user.UserId,
+                (record, user) => new { user.Username, record.Date.Date })
             .GroupBy(record => record.Username)
-            .Select(grouping => new AllTimeScoreDto() {Username = grouping.Key, Wins = grouping.Count()}) //Try to list before this.
-            .OrderByDescending(result => result.Wins).ToListAsync();
+            .Select(group => new AllTimeScoreDto()
+                { Username = group.Key, Wins = group.Count() }) //Try to list before this.
+            .OrderByDescending(result => result.Wins);
         return Ok(scores.Take(20));
     }
 }

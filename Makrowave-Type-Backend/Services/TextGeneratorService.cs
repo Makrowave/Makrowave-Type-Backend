@@ -7,7 +7,7 @@ public class TextGeneratorService : ITextGeneratorService
         var words = File.ReadAllLines("Files/google-10000-english-no-swears.txt");
         var length = words.Length;
         var random = new Random();
-        var textLenght = random.Next(20, 40);
+        var textLenght = random.Next(20, 30);
         var challenge = string.Empty;
         for (var i = 0; i < textLenght; i++)
         {

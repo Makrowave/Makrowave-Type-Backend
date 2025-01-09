@@ -1,5 +1,6 @@
 ﻿namespace Makrowave_Type_Backend.Dtos;
 
+//Outgoing
 public class DailyScoreDto
 {
     public required string Username { get; set; } = null!;

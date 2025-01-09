@@ -3,7 +3,6 @@ using Isopoh.Cryptography.Argon2;
 using Makrowave_Type_Backend.Dtos;
 using Makrowave_Type_Backend.Models;
 using Makrowave_Type_Backend.Models.Entities;
-using Makrowave_Type_Backend.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,9 +54,9 @@ public class AuthController : ControllerBase
     {
         var username = user.Username;
         var password = user.Password;
-        if (!RegexValidator.IsValidUsername(username) || !RegexValidator.IsValidPassword(password))
+        if (!ModelState.IsValid)
         {
-            return BadRequest("Invalid username or password");
+            return BadRequest(ModelState);
         }
 
         if (UserExists(username))

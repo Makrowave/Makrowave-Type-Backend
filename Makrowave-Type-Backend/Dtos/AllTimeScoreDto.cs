@@ -1,5 +1,5 @@
 ﻿namespace Makrowave_Type_Backend.Dtos;
-
+//Outgoing
 public class AllTimeScoreDto
 {
     public required string Username { get; set; } = null!;
