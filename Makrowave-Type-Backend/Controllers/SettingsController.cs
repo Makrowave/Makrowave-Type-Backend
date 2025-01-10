@@ -24,12 +24,7 @@ public class SettingsController : ControllerBase
     [HttpGet("theme")]
     public async Task<ActionResult<string>> GetUserTheme()
     {
-        var userId = await GetUserId(Request.Cookies["session"]);
-        Console.WriteLine(userId);
-        if (!UserExists(userId))
-        {
-            return NotFound("User does not exist");
-        }
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.Name)!.Value);
         var theme = await _dbContext.UserThemes.FindAsync(userId);
         var gradientList = _dbContext.GradientColors.Where(color => color.UserThemeId == userId).OrderBy(color => color.Id).Select(color => color.Color).ToList();
         var result = new UserThemeDto()
@@ -50,7 +45,7 @@ public class SettingsController : ControllerBase
     [HttpPost("theme")]
     public async Task<ActionResult<string>> SaveUserTheme(UserThemeDto userTheme)
     {
-        var userId = await GetUserId(Request.Cookies["session"]);
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.Name)!.Value);
 
         if (!UserExists(userId) || !_dbContext.UserThemes.Any(theme => theme.UserThemeId == userId))
         {
@@ -78,15 +73,5 @@ public class SettingsController : ControllerBase
     private bool UserExists(Guid userId)
     {
         return _dbContext.Users.Any(u => u.UserId == userId);
-    }
-
-    private async Task<Guid> GetUserId(string sessionId)
-    {
-        Console.WriteLine(sessionId);
-        if (Guid.TryParse(sessionId, out var sessionGuid))
-        {
-            return (await _dbContext.Sessions.FindAsync(sessionGuid))!.UserId;
-        }
-        return Guid.Empty;
     }
 }

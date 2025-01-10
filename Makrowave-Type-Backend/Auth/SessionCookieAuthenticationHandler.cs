@@ -21,42 +21,41 @@ public class SessionCookieAuthenticationHandler : AuthenticationHandler<Authenti
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var sessionId = Request.Cookies["session"];
-        Console.WriteLine("Session id: " + sessionId);
+        //Session in cookie not found
         if (string.IsNullOrEmpty(sessionId))
         {
-            Console.WriteLine("No session id found.");
             return AuthenticateResult.NoResult();
         }
-
+        //Invalid session GUID
         if (!Guid.TryParse(sessionId, out Guid sessionGuid))
         {
-            Console.WriteLine("Invalid session GUID.");
             return AuthenticateResult.NoResult();
         }
-
+        //Session in database not found
         var session = await _context.Sessions.FindAsync(sessionGuid);
         if (session == null)
         {
-            Console.WriteLine("No session found.");
             return AuthenticateResult.NoResult();
         }
-
+        //Session expired
         if (session.ExpirationDate < DateTime.Now)
         {
-            Console.WriteLine("Session expired.");
             _context.Sessions.Remove(session);
             await _context.SaveChangesAsync();
             return AuthenticateResult.NoResult();
         }
-
+        //User tied to session doesn't exist
         var user = await _context.Users.FindAsync(session.UserId);
         if (user == null)
         {
             Console.WriteLine("No user found.");
             return AuthenticateResult.NoResult();
         }
-
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, session.UserId.ToString())], "SessionCookie");
+    
+        var identity = new ClaimsIdentity([
+            new Claim(ClaimTypes.Name, session.UserId.ToString()),
+            new Claim(ClaimTypes.Authentication, session.SessionId.ToString())
+        ], "SessionCookie");
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), Scheme.Name);
         return AuthenticateResult.Success(ticket);
     }

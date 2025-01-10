@@ -76,17 +76,8 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        var sessionId = Request.Cookies["session"];
-        if (!Guid.TryParse(sessionId, out var sessionGuid))
-        {
-            return BadRequest("Invalid session format");
-        }
-
-        var session = _dbContext.Sessions.Find(sessionGuid);
-        if (session == null)
-        {
-            return BadRequest("Invalid session");
-        }
+        var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
+        var session = _dbContext.Sessions.Find(sessionId);
         _dbContext.Sessions.Remove(session);
         await _dbContext.SaveChangesAsync();
         Response.Cookies.Delete("session");
@@ -114,8 +105,7 @@ public class AuthController : ControllerBase
     [HttpGet("get-profile")]
     public async Task<ActionResult<string>> GetProfile()
     {
-        var sessionId = Guid.Parse(Request.Cookies["session"]!);
-        var userId = (await _dbContext.Sessions.FindAsync(sessionId))!.UserId;
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.Name)!.Value);
         var user = await _dbContext.Users.FindAsync(userId);
         return Ok(user?.Username);
     }

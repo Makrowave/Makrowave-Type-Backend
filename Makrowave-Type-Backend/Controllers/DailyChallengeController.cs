@@ -9,10 +9,13 @@ namespace Makrowave_Type_Backend.Controllers;
 public class DailyChallengeController : ControllerBase
 {
     private readonly ITextGeneratorService _textGenerator;
+    private readonly string _key;
 
-    public DailyChallengeController(ITextGeneratorService textGenerator)
+    public DailyChallengeController(ITextGeneratorService textGenerator, IConfiguration configuration)
     {
         _textGenerator = textGenerator;
+        _key = configuration["ChallengeSecret"] ?? throw new InvalidOperationException("ChallengeSecret is missing in configuration");
+
     }
     
     [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
