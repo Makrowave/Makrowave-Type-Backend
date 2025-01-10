@@ -2,5 +2,5 @@
 
 public interface ITextGeneratorService
 {
-    public string GenerateText();
+    public string GenerateText(bool daily);
 }

@@ -22,12 +22,14 @@ public class DailyChallengeController : ControllerBase
     [HttpGet("daily-challenge-end")]
     public ActionResult<string> GetDailyChallenge()
     {
+        var text = _textGenerator.GenerateText(true);
         throw new NotImplementedException();
+        
     }
 
     [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
     [HttpPost("daily-challenge-start")]
-    public ActionResult<string> EndDailyChallenge()
+    public IActionResult EndDailyChallenge()
     {
         throw new NotImplementedException();
     }
@@ -35,6 +37,6 @@ public class DailyChallengeController : ControllerBase
     [HttpGet("practice")]
     public ActionResult<string> GetPracticeText()
     {
-        return Ok(_textGenerator.GenerateText());
+        return Ok(_textGenerator.GenerateText(false));
     }
 }
