@@ -44,11 +44,9 @@ public class DailyChallengeController : ControllerBase
             UpdateChallenge();
         }
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.Name)!.Value);
-        Console.WriteLine($"UserId: {userId}");
         var challenge = await _context.DailyRecords
             .Where(record => record.UserId == userId && record.Date.Date == _challengeDate)
             .ToListAsync();
-        Console.WriteLine(challenge.Count);
         if (challenge.Count != 0)
         {
             return BadRequest("The daily challenge has already been completed");

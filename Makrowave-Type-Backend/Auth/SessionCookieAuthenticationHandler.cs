@@ -48,7 +48,6 @@ public class SessionCookieAuthenticationHandler : AuthenticationHandler<Authenti
         var user = await _context.Users.FindAsync(session.UserId);
         if (user == null)
         {
-            Console.WriteLine("No user found.");
             return AuthenticateResult.NoResult();
         }
     

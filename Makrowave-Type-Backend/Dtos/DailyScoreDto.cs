@@ -7,4 +7,5 @@ public class DailyScoreDto
     public int Time {get; set;}
     public float Accuracy {get; set;}
     public float Score {get; set;}
+    public int Place { get; set; }
 }
