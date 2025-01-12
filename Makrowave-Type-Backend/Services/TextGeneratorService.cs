@@ -32,7 +32,7 @@ public class TextGeneratorService : ITextGeneratorService
     }
     private int GetSeed()
     {
-        var date = DateTime.Now.Date;
+        var date = DateTime.UtcNow.Date;
         var toHash = date.ToString("yyyyMMdd") + _secret;
         using SHA256 sha256 = SHA256.Create();
         byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(toHash));

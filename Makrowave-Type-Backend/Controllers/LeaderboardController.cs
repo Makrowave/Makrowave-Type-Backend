@@ -22,7 +22,7 @@ public class LeaderboardController : ControllerBase
     [HttpGet("get-daily")]
     public async Task<ActionResult<List<DailyScoreDto>>> GetDailyLeaderboard()
     {
-        var date = DateTime.Now.Date;
+        var date = DateTime.UtcNow.Date;
         var records = await _context.DailyRecords.Where(record => record.Date.Date == date)
             .Join(_context.Users, record => record.UserId, user => user.UserId, (record, user) => new
             {

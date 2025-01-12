@@ -38,7 +38,7 @@ public class SessionCookieAuthenticationHandler : AuthenticationHandler<Authenti
             return AuthenticateResult.NoResult();
         }
         //Session expired
-        if (session.ExpirationDate < DateTime.Now)
+        if (session.ExpirationDate < DateTime.UtcNow)
         {
             _context.Sessions.Remove(session);
             await _context.SaveChangesAsync();

@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
         var password = user.Password;
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Data didn't pass validation");
         }
 
         if (UserExists(username))
@@ -110,7 +110,7 @@ public class AuthController : ControllerBase
         return Ok(user?.Username);
     }
 
-    bool UserExists(string username)
+    private bool UserExists(string username)
     {
         return _dbContext.Users.Any(u => u.Username == username);
     }
