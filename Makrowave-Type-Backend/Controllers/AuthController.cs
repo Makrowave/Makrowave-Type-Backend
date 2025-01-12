@@ -28,11 +28,11 @@ public class AuthController : ControllerBase
     {
         var username = authDto.Username;
         var password = authDto.Password;
-        if (!UserExists(username)) return Unauthorized();
+        if (!UserExists(username)) return Unauthorized("Incorrect username or password");
         var user = _dbContext.Users.FirstOrDefault(u => u.Username == username);
         if (!Argon2.Verify(user!.PasswordHash, password))
         {
-            return Unauthorized();
+            return Unauthorized("Incorrect username or password");
         }
 
         var expirationDate = DateTime.UtcNow.AddMinutes(_sessionDuration);
