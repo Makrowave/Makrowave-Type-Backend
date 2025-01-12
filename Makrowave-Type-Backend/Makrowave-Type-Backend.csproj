@@ -23,4 +23,11 @@
       <Folder Include="Migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Files\google-10000-english-no-swears.txt" />
+      <Content Include="Files\google-10000-english-no-swears.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
