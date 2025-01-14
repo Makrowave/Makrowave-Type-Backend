@@ -5,6 +5,7 @@ using Makrowave_Type_Backend.Models;
 using Makrowave_Type_Backend.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Makrowave_Type_Backend.Controllers;
 
@@ -78,7 +79,7 @@ public class AuthController : ControllerBase
     {
         var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
         var session = _dbContext.Sessions.Find(sessionId);
-        _dbContext.Sessions.Remove(session);
+        _dbContext.Sessions.Remove(session!);
         await _dbContext.SaveChangesAsync();
         Response.Cookies.Delete("session");
         return Ok();
@@ -108,6 +109,53 @@ public class AuthController : ControllerBase
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.Name)!.Value);
         var user = await _dbContext.Users.FindAsync(userId);
         return Ok(user?.Username);
+    }
+
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
+    [HttpPut("change-username")]
+    public async Task<IActionResult> ChangeUsername([FromBody] string username)
+    {
+        if (UserExists(username))
+        {
+            return BadRequest("User with that username already exists");
+        }
+        var oldUsername = User.FindFirst(ClaimTypes.Name)!.Value;
+        var user = await _dbContext.Users.FirstAsync(u => u.Username == oldUsername);
+        user.Username = username;
+        await _dbContext.SaveChangesAsync();
+        
+        var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
+        var session = _dbContext.Sessions.Find(sessionId);
+        _dbContext.Sessions.Remove(session!);
+        return Ok();
+    }
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword()
+    {
+        
+        var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
+        var session = _dbContext.Sessions.Find(sessionId);
+        _dbContext.Sessions.Remove(session!);
+        return Ok();
+    }
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
+    [HttpDelete("delete")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
+        var session = _dbContext.Sessions.Find(sessionId);
+        _dbContext.Sessions.Remove(session!);
+        return Ok();
+    }
+    [Authorize(Policy = "SessionCookie", AuthenticationSchemes = "SessionCookie")]
+    [HttpPost("delete-token")]
+    public async Task<IActionResult> GetDeleteToken()
+    {
+        var sessionId = Guid.Parse(User.FindFirst(ClaimTypes.Authentication)!.Value);
+        var session = _dbContext.Sessions.Find(sessionId);
+        _dbContext.Sessions.Remove(session!);
+        return Ok();
     }
 
     private bool UserExists(string username)
