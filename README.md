@@ -9,6 +9,7 @@ Change:\
 "AllowedOrigins" to match your CORS origins, \
 "ConnectionStrings:DefaultConnection" to your psql database connection string,\
 "ChallengeSecret" to random generated secret for daily challenges (can be any string)\
+"PasswordSecret" to random generated secret for password change (can be any string)\
 Other:\
 "SessionDuration" - session duration in minutes, default 1 week\
 "Theme" - default colors for users' themes
