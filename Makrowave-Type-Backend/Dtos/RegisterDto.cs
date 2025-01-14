@@ -3,7 +3,7 @@ using Makrowave_Type_Backend.Validation;
 
 namespace Makrowave_Type_Backend.Dtos;
 //Incoming
-public class AuthDto
+public class RegisterDto
 {
     [Required(ErrorMessage = "Username is required")]
     [RegularExpression(Regexes.Name, ErrorMessage = "Invalid username format")]
