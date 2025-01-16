@@ -76,7 +76,6 @@ public class LeaderboardController : ControllerBase
         var result = scores.Take(20).ToList();
         if (Guid.TryParse(User.FindFirst(ClaimTypes.Name)?.Value, out Guid userId))
         {
-            Console.WriteLine(userId);
             var username = (await _context.Users.FindAsync(userId))?.Username;
             var userScore = scores.FirstOrDefault(record => record.Username == username);
             if (!result.Any(score => score.Username == username) && userScore != null)
